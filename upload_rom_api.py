@@ -2,7 +2,6 @@ import os
 import pickle
 import sys
 import argparse
-import base64
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 from google.auth.transport.requests import Request
@@ -12,18 +11,18 @@ SCOPES = ['https://www.googleapis.com/auth/drive.file']
 
 def get_credentials():
     creds = None
+    # Adjust path if token.pickle is in a different directory
     token_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'token.pickle')
     if os.path.exists(token_path):
-        with open(token_path, 'r', encoding='utf-8') as token:
-            token_data = base64.b64decode(token.read().strip())
-            creds = pickle.loads(token_data)
+        with open(token_path, 'rb') as token:
+            creds = pickle.load(token)
             
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             print("Refreshing access token...")
             creds.refresh(Request())
             with open(token_path, 'wb') as token:
-                token.write(base64.b64encode(pickle.dumps(creds)))
+                pickle.dump(creds, token)
         else:
             print(f"Error: Invalid or missing token.pickle at {token_path}. Please generate it first.")
             sys.exit(1)
