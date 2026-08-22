@@ -1,4 +1,4 @@
-Work_dir=$(pwd)
+work_dir=$(pwd)
 source $work_dir/functions.sh
 RCLONE_CONFIG_1DRIVE="$work_dir/rclone.conf"
 ONEDRIVE_REMOTE="starxONEDRIVE"
@@ -17,7 +17,6 @@ if [ "$1" == "setup" ]; then
     exit 1
   fi
   
-  # Nếu file token.pickle đã có sẵn trong repo thì giữ nguyên, không tải đè JSON lỗi về
   if [ ! -f "$work_dir/token.pickle" ]; then
     curl -s -o $work_dir/rclone.conf \
           -H "Authorization: token $2" \
@@ -39,7 +38,6 @@ if [ "$1" == "setup" ]; then
         
   exit 0
 fi
-
 
 if [[ $(git branch --show-current) == "beta" ]]; then
     polyxver="$(cat Version)"
