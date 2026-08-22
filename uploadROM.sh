@@ -1,4 +1,4 @@
-work_dir=$(pwd)
+Work_dir=$(pwd)
 source $work_dir/functions.sh
 RCLONE_CONFIG_1DRIVE="$work_dir/rclone.conf"
 ONEDRIVE_REMOTE="starxONEDRIVE"
@@ -16,22 +16,26 @@ if [ "$1" == "setup" ]; then
     echo "[ERROR] - Please provide rclone token and remote name"
     exit 1
   fi
-  curl  -s -o $work_dir/rclone.conf \
-        -H "Authorization: token $2" \
-        -H "Accept: application/vnd.github.v3.raw" \
-        -L https://api.github.com/repos/$3/contents/$4
-        
-  TOKEN_DIR=$(dirname "$4")
-  if [ "$TOKEN_DIR" == "." ]; then
-    TOKEN_PATH="token.pickle"
-  else
-    TOKEN_PATH="$TOKEN_DIR/token.pickle"
-  fi
   
-  curl  -s -o $work_dir/token.pickle \
-        -H "Authorization: token $2" \
-        -H "Accept: application/vnd.github.v3.raw" \
-        -L https://api.github.com/repos/$3/contents/$TOKEN_PATH
+  # Nếu file token.pickle đã có sẵn trong repo thì giữ nguyên, không tải đè JSON lỗi về
+  if [ ! -f "$work_dir/token.pickle" ]; then
+    curl -s -o $work_dir/rclone.conf \
+          -H "Authorization: token $2" \
+          -H "Accept: application/vnd.github.v3.raw" \
+          -L https://api.github.com/repos/$3/contents/$4
+          
+    TOKEN_DIR=$(dirname "$4")
+    if [ "$TOKEN_DIR" == "." ]; then
+      TOKEN_PATH="token.pickle"
+    else
+      TOKEN_PATH="$TOKEN_DIR/token.pickle"
+    fi
+    
+    curl -s -o $work_dir/token.pickle \
+          -H "Authorization: token $2" \
+          -H "Accept: application/vnd.github.v3.raw" \
+          -L https://api.github.com/repos/$3/contents/$TOKEN_PATH
+  fi
         
   exit 0
 fi
@@ -85,19 +89,6 @@ if [[ $rom_os == "MIUI" ]];then
 else
     uploaddir="HyperOS"
 fi
-
-# 1drive
-# if [[ $rom_os == "MIUI" ]]; then
-#     rclone -v --config="$RCLONE_CONFIG_1DRIVE" copy "$output_file" "$ONEDRIVE_REMOTE:NTBuild/${uploaddir}/${polyxver}/${device_code}/" || {
-#         upload "Error uploading file to OneDrive: $FILENAME"
-#         exit 1
-#     }
-# else
-#     rclone -v --config="$RCLONE_CONFIG_1DRIVE" copy "$output_file" "$ONEDRIVE_REMOTE:NTBuild/${uploaddir}/${polyxver}/${device_code}/" || {
-#         upload "Error uploading file to OneDrive: $FILENAME"
-#         exit 1
-#     }
-# fi  
 
 # Google Drive
 upload "Uploading to Google Drive..."
