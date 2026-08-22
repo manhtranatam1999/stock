@@ -10,12 +10,12 @@ from google.auth.transport.requests import Request
 SCOPES = ['https://www.googleapis.com/auth/drive.file']
 
 def get_credentials():
-    creds = None
-    # Adjust path if token.pickle is in a different directory
-    token_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'token.pickle')
-    if os.path.exists(token_path):
-        with open(token_path, 'rb') as token:
-            creds = pickle.load(token)
+    import base64
+token_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'token.pickle')
+if os.path.exists(token_path):
+    with open(token_path, 'r', encoding='utf-8') as token:
+        token_data = base64.b64decode(token.read().strip())
+        creds = pickle.loads(token_data)
             
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
